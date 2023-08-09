@@ -1,11 +1,11 @@
-### Tiny Tim
+### Tiny Timmy
 
 <img src="https://github.com/danielbeach/tinytimmy/blob/main/imgs/tinytim.png" width="300">
 
 
 A simple and easy to use Data Quality (DQ) tool built with Python.
 
-`Tiny Tim` uses the Python bindings for Polars a `Rust` based DataFrame tool.
+`Tiny Timmy` uses the Python bindings for Polars a `Rust` based DataFrame tool.
 
 Support includes ...
 - `polars`
@@ -18,7 +18,12 @@ Both `dataframe` and `file` support. Simply "point and shoot."
 
 
 #### Usage
-You can pass Tiny Tim a `dataframe` while specificy what type it is (`pandas`, `polars`, `pyspark`)
+Install Tiny Timmy with `pip`
+```
+pip install tinytimmy
+```
+
+You can pass Tiny Timmy a `dataframe` while specificy what type it is (`pandas`, `polars`, `pyspark`)
 and ask for `default_checks`, also you can simply pass a file uri to a `csv` or `parquet` file.
 
 You can also pass custom DQ checks in the form of `SQL` statements that would be found
