@@ -1,6 +1,6 @@
 ### Tiny Tim
 
-<img src="https://github.com/danielbeach/tinytim/blob/main/imgs/tinytim.png" width="300">
+<img src="https://github.com/danielbeach/tinytimmy/blob/main/imgs/tinytim.png" width="300">
 
 
 A simple and easy to use Data Quality (DQ) tool built with Python.
