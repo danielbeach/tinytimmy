@@ -23,7 +23,26 @@ Install Tiny Timmy with `pip`
 pip install tinytimmy
 ```
 
-You can pass Tiny Timmy a `dataframe` while specificy what type it is (`pandas`, `polars`, `pyspark`)
+Create an instance of Tiny Timmy. 
+ - specify `source_type`
+    - `polars`
+    - `pandas`
+    - `pyspark`
+    - `csv`
+    - `parquet`
+ - specify either `file_path` or `dataframe`
+
+```
+tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
+```
+
+Then call either the default checks or a custom check.
+```
+tm.default_checks()
+tm.run_custom_check("{SQL filter}")
+```
+
+You can pass Tiny Timmy a `dataframe` while specifying what type it is (`pandas`, `polars`, `pyspark`)
 and ask for `default_checks`, also you can simply pass a file uri to a `csv` or `parquet` file.
 
 You can also pass custom DQ checks in the form of `SQL` statements that would be found
