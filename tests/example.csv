@@ -1,0 +1,4 @@
+"ride_id","rideable_type","started_at","ended_at","start_station_name","start_station_id","end_station_name","end_station_id","start_lat","start_lng","end_lat","end_lng","member_casual"
+"6F1682AC40EB6F71","electric_bike","2023-06-05 13:34:12","2023-06-05 14:31:56",,,,,41.91,-87.69,41.91,-87.7,"member"
+"622A1686D64948EB","electric_bike","2023-06-05 01:30:22","2023-06-05 01:33:06",,,,,41.94,-87.65,41.94,-87.65,"member"
+"3C88859D926253B4","electric_bike","2023-06-20 18:15:49","2023-06-20 18:32:05",,,,,41.95,-87.68,41.92,-87.63,"member"

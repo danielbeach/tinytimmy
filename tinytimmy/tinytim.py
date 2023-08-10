@@ -1,7 +1,7 @@
 import polars as pl
 from pyspark.sql import SparkSession
 
-from data_quality import DataQuality
+from tinytimmy.data_quality import DataQuality
 
 
 class TinyTim(DataQuality):
