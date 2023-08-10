@@ -17,12 +17,13 @@ Support includes ...
 Both `dataframe` and `file` support. Simply "point and shoot."
 
 
-#### Usage
+### Installation
 Install Tiny Timmy with `pip`
 ```
 pip install tinytimmy
 ```
 
+### Usage
 Create an instance of Tiny Timmy. 
  - specify `source_type`
     - `polars`
@@ -54,7 +55,7 @@ Current functionality ...
     - check if dataset is distinct or contains duplicates
 - `run_custom_check("{some SQL WHERE clause})`
 
-#### Example Usage
+### Example Usage
 
 `CSV` support.
 ```
