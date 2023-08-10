@@ -82,8 +82,9 @@ results = tm.default_checks()
 >> Your dataset has no duplicates
 ```
 
-`Custom` Data Quality checks are supported in a `SQL` based format. 
+`Custom` Data Quality checks are supported as a `list` of `SQL` based formats. 
 They are given as they would appear in a `WHERE` clause.
+You can pass one or more checks in the list.
 
 ```
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
