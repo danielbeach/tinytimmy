@@ -39,21 +39,23 @@ tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 
 Then call either the default checks or a custom check.
 ```
-tm.default_checks()
-tm.run_custom_check("{SQL filter}")
+results = tm.default_checks()
+results = tm.run_custom_check(["{SQL filter}"])
 ```
 
 You can pass Tiny Timmy a `dataframe` while specifying what type it is (`pandas`, `polars`, `pyspark`)
 and ask for `default_checks`, also you can simply pass a file uri to a `csv` or `parquet` file.
 
-You can also pass custom DQ checks in the form of `SQL` statements that would be found
+You can also pass custom DQ checks in the form of a list of `SQL` statements that would be found
 in a nomral `WHERE` clause. Results of your checks are returned as a `Polars` dataframe.
+
+The results of all `Tiny Timmy` checks are return as a Polars `dataframe`.
 
 Current functionality ...
 - `default_checks()`
     - check all columns for `null` values
     - check if dataset is distinct or contains duplicates
-- `run_custom_check("{some SQL WHERE clause})`
+- `run_custom_check(["{some SQL WHERE clause}"])`
 
 ### Example Usage
 
@@ -86,6 +88,13 @@ They are given as they would appear in a `WHERE` clause.
 ```
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 tm.default_checks()
-results = tm.run_custom_check("start_station_name IS NULL")
+results = tm.run_custom_check(["start_station_name IS NULL"])
 >> Your custom check found 978 records that match your filter statement
+┌───────────────────────────────────┐
+│ start_station_name IS NULL custo… │
+│ ---                               │
+│ i64                               │
+╞═══════════════════════════════════╡
+│ 978                               │
+└───────────────────────────────────┘
 ```

@@ -12,43 +12,48 @@ class DataQuality:
         for column in df.columns:
             null_count = df[column].is_null().sum()
             if null_count > 0:
-                null_dict[column] = null_count
+                null_dict[column+'_null_count'] = null_count
                 print(f"Column {column} has {null_count} null values")
         null_dataframe = pl.DataFrame(null_dict)
         if null_dataframe.shape[1] == 0:
             print("No null values found")
         return null_dataframe
 
-    def distinct_check(self):
+    def distinct_check(self, results: pl.DataFrame):
         df = self.dataframe.collect()
         inital_count = df.shape[0]
         distinct_count = df.select(pl.count())[0, 0]
+        results = results.with_columns(pl.lit(inital_count).alias("total_count"))
+        results = results.with_columns(pl.lit(distinct_count).alias("distinct_count"))
         if inital_count == distinct_count:
             print("Your dataset has no duplicates")
         else:
             x = inital_count - distinct_count
             print(f"Your dataset has {x} duplicates")
-            print("Returning your deduplicated dataset")
+        return results
 
     def default_checks(self) -> pl.DataFrame:
         print(self.dataframe.schema)
         results = self.null_check(self.dataframe)
-        self.distinct_check()
+        results = self.distinct_check(results)
         return results
 
-    def run_custom_check(self, sql_filter_statement: str) -> pl.DataFrame:
+    def run_custom_check(self, sql_filter_statements: list) -> pl.DataFrame:
         # must be in the form of a SQL WHERE statement
-        ctx = pl.SQLContext()
-        ctx.register("frame", self.dataframe)
-        res = ctx.execute(
-            f"""
-                              SELECT *  FROM frame WHERE {sql_filter_statement}
-                                 """
-        ).collect()
-        x = res.shape[0]
-        if x > 0:
-            print(
-                f"Your custom check found {x} records that match your filter statement"
-            )
-            print(res)
-        return res
+        custom_checks_dict = {}
+        for sql_filter_statement in sql_filter_statements:
+            ctx = pl.SQLContext()
+            ctx.register("frame", self.dataframe)
+            res = ctx.execute(
+                f"""
+                                SELECT *  FROM frame WHERE {sql_filter_statement}
+                                    """
+            ).collect()
+            x = res.shape[0]
+            custom_checks_dict[sql_filter_statement+' custom_check'] = x
+            custom_checks_df = pl.DataFrame(custom_checks_dict)
+            if x > 0:
+                print(
+                    f"Your custom check {sql_filter_statement} found {x} records that match your filter statement"
+                )
+        return custom_checks_df
