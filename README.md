@@ -3,7 +3,7 @@
 <img src="https://github.com/danielbeach/tinytimmy/blob/main/imgs/tinytim.png" width="300">
 
 
-A simple and easy to use Data Quality (DQ) tool built with Python.
+A dead simple and easy to use Data Quality (DQ) tool built for Dataframes and Files with Python.
 
 `Tiny Timmy` uses the Python bindings for Polars a `Rust` based DataFrame tool.
 
