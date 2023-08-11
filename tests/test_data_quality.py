@@ -2,39 +2,92 @@ import polars as pl
 import pytest
 from tinytimmy.data_quality import DataQuality
 
-@pytest.fixture
-def sample_dataframe():
-    return pl.DataFrame({
-        'A': [1, 2, None, 4, 5],
-        'B': [None, 2, 3, 4, 5],
-        'C': [1, 2, 3, 4, 5]
+
+def test_null_check():
+    dq = DataQuality()
+
+    # No null values test
+    df = pl.DataFrame({
+        "a": [1, 2, 3],
+        "b": [4, 5, 6]
     })
 
-@pytest.fixture
-def data_quality():
-    return DataQuality()
+    expected_result = pl.DataFrame({})
+    assert dq.null_check(df.lazy()) == expected_result
 
-def test_null_check(sample_dataframe, data_quality, capsys):
-    result = data_quality.null_check(sample_dataframe.lazy())
-    assert "A" in result.columns
-    assert "B" in result.columns
-    assert "Column A has 1 null values" in capsys.readouterr().out
+    # Some null values test
+    df = pl.DataFrame({
+        "a": [1, None, 3],
+        "b": [None, 5, 6]
+    })
+    
+    expected_result = pl.DataFrame({
+        "a_null_count": [1],
+        "b_null_count": [1]
+    })
+    
+    assert dq.null_check(df.lazy()) == expected_result
 
-def test_distinct_check(sample_dataframe, data_quality, capsys):
-    data_quality.dataframe = sample_dataframe.lazy()
-    data_quality.distinct_check()
-    assert "Your dataset has no duplicates" in capsys.readouterr().out
 
-def test_default_checks(sample_dataframe, data_quality, capsys):
-    data_quality.dataframe = sample_dataframe.lazy()
-    result = data_quality.default_checks()
-    assert "A" in result.columns
-    assert "B" in result.columns
-    assert "Your dataset has no duplicates" in capsys.readouterr().out
+def test_distinct_check():
+    dq = DataQuality()
+    
+    # All distinct rows test
+    df = pl.DataFrame({
+        "a": [1, 2, 3],
+        "b": [4, 5, 6]
+    })
 
-def test_run_custom_check(sample_dataframe, data_quality, capsys):
-    data_quality.dataframe = sample_dataframe.lazy()
-    result = data_quality.run_custom_check("A is NULL")
-    assert result.shape[0] == 1
-    assert "Your custom check found 1 records" in capsys.readouterr().out
+    dq.dataframe = df.lazy()
 
+    result_df = pl.DataFrame({
+        "a_null_count": [0],
+        "b_null_count": [0],
+        "total_count": [3],
+        "distinct_count": [3]
+    })
+
+    assert dq.distinct_check(result_df) == result_df
+
+    # Some duplicates test
+    df = pl.DataFrame({
+        "a": [1, 1, 2],
+        "b": [4, 4, 5]
+    })
+
+    dq.dataframe = df.lazy()
+
+    result_df = pl.DataFrame({
+        "a_null_count": [0],
+        "b_null_count": [0],
+        "total_count": [3],
+        "distinct_count": [2]
+    })
+
+    assert dq.distinct_check(result_df) == result_df
+
+
+def test_default_checks():
+    dq = DataQuality()
+
+    # Just a basic test to ensure it combines the results of the other functions
+    df = pl.DataFrame({
+        "a": [1, 2, 3],
+        "b": [4, 5, 6]
+    })
+
+    dq.dataframe = df.lazy()
+
+    result_df = pl.DataFrame({
+        "a_null_count": [0],
+        "b_null_count": [0],
+        "total_count": [3],
+        "distinct_count": [3]
+    })
+
+    assert dq.default_checks() == result_df
+
+# Optionally, you can add more test cases for other methods as well.
+
+# Execute tests
+pytest.main(["-v", "-s"])

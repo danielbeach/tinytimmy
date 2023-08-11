@@ -89,13 +89,13 @@ You can pass one or more checks in the list.
 ```
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 tm.default_checks()
-results = tm.run_custom_check(["start_station_name IS NULL"])
+results = tm.run_custom_check(["start_station_name IS NULL", "end_station_name IS NULL"])
 >> Your custom check found 978 records that match your filter statement
-┌───────────────────────────────────┐
-│ start_station_name IS NULL custo… │
-│ ---                               │
-│ i64                               │
-╞═══════════════════════════════════╡
-│ 978                               │
-└───────────────────────────────────┘
+┌───────────────────────────────────┬───────────────────────────────────┐
+│ start_station_name IS NULL custo… ┆ end_station_name IS NULL custom_… │
+│ ---                               ┆ ---                               │
+│ i64                               ┆ i64                               │
+╞═══════════════════════════════════╪═══════════════════════════════════╡
+│ 978                               ┆ 978                               │
+└───────────────────────────────────┴───────────────────────────────────┘
 ```
