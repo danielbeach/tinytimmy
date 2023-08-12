@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tinytimmy"
-version = "0.1.0"
+version = "0.1.2"
 description = "A simple and easy to use Data Quality (DQ) tool built with Python."
 authors = ["Daniel Beach <dancrystalbeach@gmail.com>"]
 readme = "README.md"

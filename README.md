@@ -40,7 +40,7 @@ tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 Then call either the default checks or a custom check.
 ```
 results = tm.default_checks()
-results = tm.run_custom_check(["{SQL filter}"])
+results = tm.run_custom_check(["{SQL filter}", "{SQL filter}"])
 ```
 
 You can pass Tiny Timmy a `dataframe` while specifying what type it is (`pandas`, `polars`, `pyspark`)
@@ -50,11 +50,30 @@ You can also pass custom DQ checks in the form of a list of `SQL` statements tha
 in a nomral `WHERE` clause. Results of your checks are returned as a `Polars` dataframe.
 
 The results of all `Tiny Timmy` checks are return as a Polars `dataframe`.
+For example.
+```
+┌───────────────────────────────────┬─────────────┐
+│ check_type                        ┆ check_value │
+│ ---                               ┆ ---         │
+│ str                               ┆ i64         │
+╞═══════════════════════════════════╪═════════════╡
+│ null_check_start_station_name     ┆ 978         │
+│ null_check_start_station_id       ┆ 978         │
+│ null_check_end_station_name       ┆ 978         │
+│ null_check_end_station_id         ┆ 978         │
+│ …                                 ┆ …           │
+│ started_at_whitespace_count       ┆ 1000        │
+│ ended_at_whitespace_count         ┆ 1000        │
+│ start_station_name_whitespace_co… ┆ 22          │
+│ end_station_name_whitespace_coun… ┆ 22          │
+```
 
 Current functionality ...
 - `default_checks()`
     - check all columns for `null` values
     - check if dataset is distinct or contains duplicates
+    - check if columns have whitespace
+    - check for leading or trailing whitespace
 - `run_custom_check(["{some SQL WHERE clause}"])`
 
 ### Example Usage
@@ -90,12 +109,32 @@ You can pass one or more checks in the list.
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 tm.default_checks()
 results = tm.run_custom_check(["start_station_name IS NULL", "end_station_name IS NULL"])
->> Your custom check found 978 records that match your filter statement
-┌───────────────────────────────────┬───────────────────────────────────┐
-│ start_station_name IS NULL custo… ┆ end_station_name IS NULL custom_… │
-│ ---                               ┆ ---                               │
-│ i64                               ┆ i64                               │
-╞═══════════════════════════════════╪═══════════════════════════════════╡
-│ 978                               ┆ 978                               │
-└───────────────────────────────────┴───────────────────────────────────┘
+Column start_station_name has 978 null values
+Column start_station_id has 978 null values
+Column end_station_name has 978 null values
+Column end_station_id has 978 null values
+Your dataset has no duplicates
+Column started_at has 1000 whitespace values
+Column ended_at has 1000 whitespace values
+Column start_station_name has 22 whitespace values
+Column end_station_name has 22 whitespace values
+No leading or trailing whitespace values found
+shape: (10, 2)
+┌───────────────────────────────────┬─────────────┐
+│ check_type                        ┆ check_value │
+│ ---                               ┆ ---         │
+│ str                               ┆ i64         │
+╞═══════════════════════════════════╪═════════════╡
+│ null_check_start_station_name     ┆ 978         │
+│ null_check_start_station_id       ┆ 978         │
+│ null_check_end_station_name       ┆ 978         │
+│ null_check_end_station_id         ┆ 978         │
+│ …                                 ┆ …           │
+│ started_at_whitespace_count       ┆ 1000        │
+│ ended_at_whitespace_count         ┆ 1000        │
+│ start_station_name_whitespace_co… ┆ 22          │
+│ end_station_name_whitespace_coun… ┆ 22          │
+└───────────────────────────────────┴─────────────┘
+Your custom check start_station_name IS NULL found 978 records that match your filter statement
+Your custom check end_station_name IS NULL found 978 records that match your filter statement
 ```
