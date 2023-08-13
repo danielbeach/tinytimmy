@@ -59,8 +59,6 @@ For example.
 ╞═══════════════════════════════════╪═════════════╡
 │ null_check_start_station_name     ┆ 978         │
 │ null_check_start_station_id       ┆ 978         │
-│ null_check_end_station_name       ┆ 978         │
-│ null_check_end_station_id         ┆ 978         │
 │ …                                 ┆ …           │
 │ started_at_whitespace_count       ┆ 1000        │
 │ ended_at_whitespace_count         ┆ 1000        │
@@ -130,10 +128,6 @@ shape: (10, 2)
 │ null_check_end_station_name       ┆ 978         │
 │ null_check_end_station_id         ┆ 978         │
 │ …                                 ┆ …           │
-│ started_at_whitespace_count       ┆ 1000        │
-│ ended_at_whitespace_count         ┆ 1000        │
-│ start_station_name_whitespace_co… ┆ 22          │
-│ end_station_name_whitespace_coun… ┆ 22          │
 └───────────────────────────────────┴─────────────┘
 Your custom check start_station_name IS NULL found 978 records that match your filter statement
 Your custom check end_station_name IS NULL found 978 records that match your filter statement
