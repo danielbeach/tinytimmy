@@ -25,7 +25,9 @@ def main():
     tm = TinyTim(source_type="csv", file_path="tinytimmy/202306-divvy-tripdata.csv")
     results = tm.default_checks()
     print(results)
-    results = tm.run_custom_check(["start_station_name IS NULL", "end_station_name IS NULL"])
+    results = tm.run_custom_check(
+        ["start_station_name IS NULL", "end_station_name IS NULL"]
+    )
     print(results)
 
 
