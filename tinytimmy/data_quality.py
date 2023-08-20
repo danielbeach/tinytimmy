@@ -5,7 +5,7 @@ class DataQuality:
     def __init__(self, custom_checks: dict = None) -> None:
         self.custom_checks = custom_checks
         self.dataframe = None
-        self.results = None
+        self.return_type = None
 
     def null_check(self, df: pl.LazyFrame) -> pl.DataFrame:
         null_dict = {"check_type": None, "check_value": None}
@@ -26,7 +26,7 @@ class DataQuality:
                 print(f"Column {column} has {null_count} null values")
         if null_dataframe.shape[1] == 0:
             print("No null values found")
-        return null_dataframe
+        self.return_results(null_dataframe)
 
     def distinct_check(self, results: pl.DataFrame):
         df = self.dataframe.collect()
@@ -45,7 +45,7 @@ class DataQuality:
         else:
             x = inital_count - distinct_count
             print(f"Your dataset has {x} duplicates")
-        return results
+        self.return_results(results)
 
     def check_columns_for_whitespace(self, results: pl.LazyFrame) -> pl.DataFrame:
         df = self.dataframe.collect()
@@ -65,7 +65,7 @@ class DataQuality:
                 found_whitespace = True
         if not found_whitespace:
             print("No whitespace values found")
-        return results
+        self.return_results(results)
 
     def check_columns_for_leading_trailing_whitespace(
         self, results: pl.LazyFrame
@@ -88,16 +88,19 @@ class DataQuality:
                 found_whitespace = True
         if not found_whitespace:
             print("No leading or trailing whitespace values found")
-        return results
+        self.return_results(results)
 
     def default_checks(self) -> pl.DataFrame:
         print(self.dataframe.schema)
+        final_return_type = self.return_type
+        self.return_type = "polars"
         results = self.null_check(self.dataframe)
         results = self.distinct_check(results)
         results = self.check_columns_for_whitespace(results)
         results = self.check_columns_for_leading_trailing_whitespace(results)
         self.results = results
-        return results.filter(~pl.col("check_type").is_null())
+        self.return_type = final_return_type
+        self.return_results(results.filter(~pl.col("check_type").is_null()))
 
     def run_custom_check(self, sql_filter_statements: list) -> pl.DataFrame:
         # must be in the form of a SQL WHERE statement
@@ -120,4 +123,10 @@ class DataQuality:
                         {"check_type": f"{sql_filter_statement}", "check_value": x}
                     )
                 )
-        return results
+        self.return_results(results)
+
+    def return_results(self, results):
+        if self.return_type == "polars" or self.return_type is None:
+            return results
+        elif self.return_type == "pandas":
+            return results.to_pandas()

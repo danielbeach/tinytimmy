@@ -32,6 +32,11 @@ def test_check_source_with_invalid_type():
         TinyTim(source_type="unknown")
 
 
+def test_check_return_with_invalid_type():
+    with pytest.raises(ValueError, match="Return type must be one of:"):
+        TinyTim(source_type="pandas", return_type="unknown")
+
+
 def test_check_source_without_file_path():
     with pytest.raises(
         ValueError, match="File path must be provided for csv and parquet sources"
@@ -52,3 +57,17 @@ def test_convert_from_polars(sample_polars_df):
 def test_convert_from_csv():
     tiny_tim = TinyTim(source_type="csv", file_path="tests/example.csv")
     assert isinstance(tiny_tim.dataframe, pl.LazyFrame)
+
+
+def test_return_polars():
+    tiny_tim = TinyTim(
+        source_type="csv", return_type="polars", file_path="tests/example.csv"
+    )
+    assert isinstance(tiny_tim.dataframe, pl.LazyFrame)
+
+
+def test_return_pandas():
+    tiny_tim = TinyTim(
+        source_type="csv", return_type="pandas", file_path="tests/example.csv"
+    )
+    assert isinstance(tiny_tim.dataframe, pd.DataFrame)

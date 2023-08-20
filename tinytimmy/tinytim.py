@@ -8,6 +8,7 @@ class TinyTim(DataQuality):
     def __init__(
         self,
         source_type: str,
+        return_type: str = "polars",
         dataframe=None,
         file_path: str = None,
         spark_session: SparkSession = None,
@@ -15,9 +16,12 @@ class TinyTim(DataQuality):
         super().__init__()
         self.supported_source_types = ["polars", "pandas", "pyspark", "csv", "parquet"]
         self.source_type = source_type
+        self.supported_return_types = ["polars", "pandas"]
+        self.return_type = return_type
         self.file_path = file_path
         self.spark_session = spark_session
         self.check_source()
+        self.check_return()
         self.raw_df = dataframe
         self.dataframe = self.convert_all_to_polars(self.raw_df)
 
@@ -28,6 +32,12 @@ class TinyTim(DataQuality):
             )
         if self.source_type in ["csv", "parquet"] and self.file_path is None:
             raise ValueError("File path must be provided for csv and parquet sources")
+
+    def check_return(self):
+        if self.return_type not in self.supported_return_types:
+            raise ValueError(
+                "Return type must be one of: " + str(self.supported_return_types)
+            )
 
     def convert_all_to_polars(self, df: object) -> pl.DataFrame:
         if self.source_type == "polars":

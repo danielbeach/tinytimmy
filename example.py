@@ -30,6 +30,11 @@ def main():
     )
     print(results)
 
+    # # Pandas output example
+    # tm = TinyTim(source_type="csv", return_type="pandas", file_path="tinytimmy/202306-divvy-tripdata.csv")
+    # results = tm.default_checks()
+    # print(results)
+
 
 if __name__ == "__main__":
     main()
