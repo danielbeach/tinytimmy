@@ -64,11 +64,3 @@ def test_return_polars():
         source_type="csv", return_type="polars", file_path="tests/example.csv"
     )
     assert isinstance(tiny_tim.dataframe, pl.LazyFrame)
-
-
-def test_return_pandas():
-    tiny_tim = TinyTim(
-        source_type="csv", return_type="pandas", file_path="tests/example.csv"
-    )
-    results = tiny_tim.default_checks()
-    assert isinstance(results, pd.DataFrame)

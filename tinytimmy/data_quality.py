@@ -2,10 +2,10 @@ import polars as pl
 
 
 class DataQuality:
-    def __init__(self, custom_checks: dict = None) -> None:
+    def __init__(self, custom_checks: dict = None, return_type: str = "polars") -> None:
         self.custom_checks = custom_checks
+        self.return_type = return_type
         self.dataframe = None
-        self.return_type = "polars"
 
     def null_check(self, df: pl.LazyFrame, return_type: str = None) -> pl.DataFrame:
         null_dict = {"check_type": None, "check_value": None}

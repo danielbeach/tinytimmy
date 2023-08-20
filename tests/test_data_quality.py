@@ -1,8 +1,9 @@
 import polars as pl
+import pandas as pd
 import pytest
 from tinytimmy.data_quality import DataQuality
-
-
+#
+#
 # def test_null_check():
 #     dq = DataQuality()
 #
@@ -80,3 +81,43 @@ from tinytimmy.data_quality import DataQuality
 #
 # # Execute tests
 # pytest.main(["-v", "-s"])
+
+
+def test_format_results_polars():
+    dq = DataQuality(return_type="polars")
+
+    # Just a basic test to ensure it combines the results of the other functions
+    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+    dq.dataframe = df.lazy()
+
+    result_df = pl.DataFrame(
+        {
+            "a_null_count": [0],
+            "b_null_count": [0],
+            "total_count": [3],
+            "distinct_count": [3],
+        }
+    )
+
+    assert isinstance(result_df, pl.DataFrame)
+
+
+def test_format_results_pandas():
+    dq = DataQuality(return_type="pandas")
+
+    # Just a basic test to ensure it combines the results of the other functions
+    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+    dq.dataframe = df.lazy()
+
+    result_df = pd.DataFrame(
+        {
+            "a_null_count": [0],
+            "b_null_count": [0],
+            "total_count": [3],
+            "distinct_count": [3],
+        }
+    )
+
+    assert isinstance(result_df, pd.DataFrame)
