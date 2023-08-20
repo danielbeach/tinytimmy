@@ -133,7 +133,7 @@ Your custom check start_station_name IS NULL found 978 records that match your f
 Your custom check end_station_name IS NULL found 978 records that match your filter statement
 ```
 
-### Tests and Local Setup
+### Tests / Local Setup / Contributions.
 To develop and work on TinyTimmy locally, a `Docker` image and `docker-compose` is provided.
 
 First, build the image
@@ -141,3 +141,6 @@ First, build the image
 
 To run the local unit tests run ...
 `docker-compose up test`
+
+To simply work inside the Docker container run ...
+`docker run -it tinytimmy /bin/bash`
