@@ -1,0 +1,7 @@
+version: "3.9"
+services:
+  test:
+    image: "tinytimmy"
+    volumes:
+      - .:/app
+    command: poetry run pytest
