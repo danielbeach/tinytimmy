@@ -46,10 +46,10 @@ results = tm.run_custom_check(["{SQL filter}", "{SQL filter}"])
 You can pass Tiny Timmy a `dataframe` while specifying what type it is (`pandas`, `polars`, `pyspark`)
 and ask for `default_checks`, also you can simply pass a file uri to a `csv` or `parquet` file.
 
-You can also pass custom DQ checks in the form of a list of `SQL` statements that would be found
-in a nomral `WHERE` clause. Results of your checks are returned as a `Polars` dataframe.
+You can also pass custom DQ checks as a list of `SQL` statements in a normal `WHERE` clause.  
 
-The results of all `Tiny Timmy` checks are return as a Polars `dataframe`.
+`Tiny Timmy` returns check results as a Polars `dataframe`.
+
 For example.
 ```
 ┌───────────────────────────────────┬─────────────┐
