@@ -20,6 +20,7 @@ pre-commit = "^3.3.3"
 pytest = "^7.4.0"
 pytest-describe = "^2.1.0"
 ruff = "^0.0.286"
+hadolintw = "^1.2.1"
 
 [build-system]
 requires = ["poetry-core"]
