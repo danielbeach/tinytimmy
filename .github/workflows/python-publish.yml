@@ -9,6 +9,11 @@
 name: Upload Python Package
 
 on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'main'
+
   release:
     types: [published]
 
@@ -16,29 +21,45 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-
+  unit-tests:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'poetry'
+      - name: Install Python dependencies
+        run: poetry install
+      - name: Test with pytest
+        run: |
+          poetry run pytest
+      - name: Lint with ruff
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          poetry run ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
+          # default set of ruff rules with GitHub Annotations
+          poetry run ruff --format=github --target-version=py37 .
+
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.9'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install build
-    - name: Lint with ruff
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        ruff --format=github --select=E9,F63,F7,F82 --target-version=py37 .
-        # default set of ruff rules with GitHub Annotations
-        ruff --format=github --target-version=py37 .
-    - name: Test with pytest
-      run: |
-        pytest
     - name: Build package
       run: python -m build
     - name: Publish package
