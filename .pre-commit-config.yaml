@@ -10,21 +10,27 @@ repos:
     - id: name-tests-test
       args:
         - "--pytest-test-first"
-- repo: https://github.com/astral-sh/ruff-pre-commit
-  # Ruff version.
-  rev: v0.0.285
+- repo: local
   hooks:
     - id: ruff
-- repo: https://github.com/ambv/black
-  rev: 23.7.0
-  hooks:
+      name: ruff
+      entry: ruff
+      language: system
+      types: [python]
     - id: black
-      # language_version: python3.9
+      name: black
+      entry: black
+      language: system
+      types: [python]
+    - id: hadolint
+      name: Hadolint Dockerfiles
+      entry: hadolint
+      language: system
+      types: ["dockerfile"]
 - repo: local
   hooks:
     - id: pytest-check
       name: pytest-check
       entry: pytest
+      stages: [push]
       language: system
-      pass_filenames: false
-      always_run: true
