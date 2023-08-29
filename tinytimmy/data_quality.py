@@ -1,4 +1,5 @@
 import polars as pl
+from pyspark.sql import SparkSession
 
 
 class DataQuality:
@@ -24,6 +25,7 @@ class DataQuality:
                     )
                 )
                 print(f"Column {column} has {null_count} null values")
+        null_dataframe = null_dataframe.filter(~pl.col("check_type").is_null())
         if null_dataframe.shape[1] == 0:
             print("No null values found")
         return null_dataframe
@@ -45,7 +47,7 @@ class DataQuality:
         else:
             x = inital_count - distinct_count
             print(f"Your dataset has {x} duplicates")
-        return results
+        return results.filter(~pl.col("check_type").is_null())
 
     def check_columns_for_whitespace(self, results: pl.LazyFrame) -> pl.DataFrame:
         df = self.dataframe.collect()
@@ -90,16 +92,31 @@ class DataQuality:
             print("No leading or trailing whitespace values found")
         return results
 
-    def default_checks(self) -> pl.DataFrame:
+    def default_checks(self, 
+                       return_as: str = 'polars', 
+                       spark_session: SparkSession =  None
+                       ) -> pl.DataFrame:
         print(self.dataframe.schema)
         results = self.null_check(self.dataframe)
         results = self.distinct_check(results)
         results = self.check_columns_for_whitespace(results)
         results = self.check_columns_for_leading_trailing_whitespace(results)
-        self.results = results
-        return results.filter(~pl.col("check_type").is_null())
+        results = results.filter(~pl.col("check_type").is_null())
+        self.results = results.filter(~pl.col("check_type").is_null())
+        if return_as == 'polars':
+            return self.results
+        elif return_as == 'pandas':
+            return self.results.to_pandas()
+        elif return_as == 'spark':
+            return  spark_session.createDataFrame(self.results.to_pandas())
+        else:
+            raise ValueError(f"Unknown return type {return_as}")
 
-    def run_custom_check(self, sql_filter_statements: list) -> pl.DataFrame:
+    def run_custom_check(self, 
+                         sql_filter_statements: list,
+                         return_as: str = 'polars', 
+                         spark_session: SparkSession =  None
+                         ) -> pl.DataFrame:
         # must be in the form of a SQL WHERE statement
         results = self.results
         for sql_filter_statement in sql_filter_statements:
@@ -120,4 +137,11 @@ class DataQuality:
                         {"check_type": f"{sql_filter_statement}", "check_value": x}
                     )
                 )
-        return results
+        if return_as == 'polars':
+            return results
+        elif return_as == 'pandas':
+            return results.to_pandas()
+        elif return_as == 'spark':
+            return  spark_session.createDataFrame(self.results.to_pandas())
+        else:
+            raise ValueError(f"Unknown return type {return_as}")

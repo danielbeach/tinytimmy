@@ -34,6 +34,7 @@ Create an instance of Tiny Timmy.
  - specify either `file_path` or `dataframe`
 
 ```
+from tinytimmy.tinytim import TinyTim
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 ```
 
@@ -48,7 +49,12 @@ and ask for `default_checks`, also you can simply pass a file uri to a `csv` or 
 
 You can also pass custom DQ checks as a list of `SQL` statements in a normal `WHERE` clause.  
 
-`Tiny Timmy` returns check results as a Polars `dataframe`.
+`Tiny Timmy` returns check results as a `Polars` `dataframe` by default, you can 
+request the results as a `pandas` or `pyspark` `dataframe`.
+
+```
+results = tm.default_checks(return_as='pandas')
+```
 
 For example.
 ```
@@ -78,6 +84,7 @@ Current functionality ...
 
 `CSV` support.
 ```
+from tinytimmy.tinytim import TinyTim
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 results = tm.default_checks()
 >> Column start_station_name has 978 null values
@@ -89,6 +96,7 @@ results = tm.default_checks()
 
 `Pandas` support.
 ```
+from tinytimmy.tinytim import TinyTim
 df = pd.read_csv("202306-divvy-tripdata.csv")
 tm = TinyTim(source_type="pandas", dataframe=df)
 results = tm.default_checks()
@@ -104,6 +112,7 @@ They are given as they would appear in a `WHERE` clause.
 You can pass one or more checks in the list.
 
 ```
+from tinytimmy.tinytim import TinyTim
 tm = TinyTim(source_type="csv", file_path="202306-divvy-tripdata.csv")
 tm.default_checks()
 results = tm.run_custom_check(["start_station_name IS NULL", "end_station_name IS NULL"])
