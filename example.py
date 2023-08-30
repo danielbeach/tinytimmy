@@ -29,6 +29,15 @@ def main():
         ["start_station_name IS NULL", "end_station_name IS NULL"]
     )
     print(results)
+    
+    # check datetime column format 
+    tm = TinyTim(source_type="csv", file_path="tinytimmy/202306-divvy-tripdata.csv")
+    print(tm.dataframe.collect())
+    results = tm.default_checks(datetime_dict={
+        "started_at": "%Y-%m-%d %H:%M:%S",
+        "ended_at": "%Y-%m-%d %H:%M:%S",
+    })
+    print(results)
 
 
 if __name__ == "__main__":
