@@ -1,6 +1,11 @@
 import polars as pl
 from loguru import logger
+from pyspark.sql import SparkSession
 
+OUTPUT_SCHEMA = {
+    "check_type": pl.Utf8, 
+    "check_value": pl.Int64
+}
 
 class DataQuality:
     def __init__(self, custom_checks: dict = None) -> None:
@@ -22,39 +27,24 @@ class DataQuality:
                 "check_type": f"null_check_{column_name}", 
                 "check_value": null_count
             })
-        return (
-            pl.DataFrame(
-                column_null_check_results, 
-                schema={
-                    "check_type": pl.Utf8, 
-                    "check_value": pl.Int64
-                }
-            )
-            # .pivot(
-            #     values="check_value",
-            #     columns="check_type",
-            #     index="check_type"
-            # )
+        return pl.DataFrame(
+            column_null_check_results, 
+            schema=OUTPUT_SCHEMA        
         )
 
-    def distinct_check(self, results: pl.DataFrame):
-        df = self.dataframe.collect()
-        inital_count = df.shape[0]
-        distinct_count = df.select(pl.count())[0, 0]
-        results = results.vstack(
-            pl.DataFrame({"check_type": "total_count", "check_value": inital_count})
+    def distinct_check(self, input_frame: pl.LazyFrame) -> pl.DataFrame:
+        distinct_counts = input_frame.select(pl.all().approx_n_unique()).collect()
+        output_distinct_counts = []
+        for column_name in distinct_counts.columns:
+            output_distinct_counts.append({
+                "check_type": f"distinct_count_{column_name}",
+                "check_value": distinct_counts[column_name][0]
+            })
+
+        return pl.DataFrame(
+            output_distinct_counts,
+            schema=OUTPUT_SCHEMA
         )
-        results = results.vstack(
-            pl.DataFrame(
-                {"check_type": "distinct_count", "check_value": distinct_count}
-            )
-        )
-        if inital_count == distinct_count:
-            print("Your dataset has no duplicates")
-        else:
-            x = inital_count - distinct_count
-            print(f"Your dataset has {x} duplicates")
-        return results.filter(~pl.col("check_type").is_null())
 
     def check_columns_for_whitespace(self, results: pl.LazyFrame) -> pl.DataFrame:
         df = self.dataframe.collect()
@@ -99,17 +89,19 @@ class DataQuality:
             print("No leading or trailing whitespace values found")
         return results
 
-    def default_checks(self, 
+    def default_checks(self,
+                       input_frame: pl.LazyFrame, 
                        return_as: str = 'polars', 
                        spark_session: SparkSession =  None
                        ) -> pl.DataFrame:
-        print(self.dataframe.schema)
-        results = self.null_check(self.dataframe)
-        results = self.distinct_check(results)
-        results = self.check_columns_for_whitespace(results)
-        results = self.check_columns_for_leading_trailing_whitespace(results)
-        results = results.filter(~pl.col("check_type").is_null())
-        self.results = results.filter(~pl.col("check_type").is_null())
+        intermediate_results = [
+            self.null_check(input_frame),
+            self.distinct_check(input_frame),
+            # self.check_columns_for_whitespace(input_frame),
+            # self.check_columns_for_leading_trailing_whitespace(input_frame),
+        ]
+        result_df = pl.concat(intermediate_results)
+        self.results = result_df
         if return_as == 'polars':
             return self.results
         elif return_as == 'pandas':
