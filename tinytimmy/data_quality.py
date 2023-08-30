@@ -1,9 +1,5 @@
 import polars as pl
-<<<<<<< HEAD
-from pyspark.sql import SparkSession
-=======
 from loguru import logger
->>>>>>> 7a1bcbd (fix test no nulls test)
 
 
 class DataQuality:

@@ -5,6 +5,10 @@ from tinytimmy.data_quality import DataQuality
 from loguru import logger
 
 def test_no_nulls():
+    """
+    Test that when there are no nulls in the data set, we return 0's for the
+    check_values
+    """
     # ARRANGE
     dq = DataQuality()
     input_df = pl.LazyFrame({
@@ -29,65 +33,94 @@ def test_no_nulls():
     assert_frame_equal(output_result, expected_result)
 
 
-def test_null_check():
-    pass
+def test_some_nulls():
+    """
+    Test that when there are a few nulls in the data set, we return the count of
+    null values for the check_values
+    """
+    # ARRANGE
+    dq = DataQuality()
+    input_df = pl.LazyFrame({
+        "a": [1, None, 3], 
+        "b": [None, 5, 6]
+    })
 
-    # # Some null values test
-    # df = pl.DataFrame({"a": [1, None, 3], "b": [None, 5, 6]})
+    # ACT
+    output_result = dq.null_check(input_df)
+    expected_result = pl.DataFrame([
+        {
+            "check_type": "null_check_a",
+            "check_value": 1
+        },
+        {
+            "check_type": "null_check_b",
+            "check_value": 1
+        },
+    ])
 
-    # expected_result = pl.DataFrame({"a_null_count": [1], "b_null_count": [1]})
-
-    # assert dq.null_check(df.lazy()) == expected_result
+    # ASSERT
+    assert_frame_equal(output_result, expected_result)
 
 
 def test_distinct_check():
+    """
+    Test that we can return the approximate number of distinct values
+    for each column in a dataset
+    """
+    # ARRANGE
     dq = DataQuality()
-    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-    dq.dataframe = df.lazy()
+    input_frame = pl.LazyFrame({
+        "a": [1, 2, 3], 
+        "b": [4, 5, 6]
+    })
 
-    result_df = pl.DataFrame(
+    # ACT
+    output_result = dq.distinct_check(input_frame)
+    expected_result = pl.DataFrame([
         {
-            "a_null_count": [0],
-            "b_null_count": [0],
-            "total_count": [3],
-            "distinct_count": [3],
-        }
-    )
-
-    assert dq.distinct_check(result_df) == result_df
-
-    # Some duplicates test
-    df = pl.DataFrame({"a": [1, 1, 2], "b": [4, 4, 5]})
-
-    dq.dataframe = df.lazy()
-
-    result_df = pl.DataFrame(
+            "check_type": "distinct_count_a",
+            "check_value": 3
+        },
         {
-            "a_null_count": [0],
-            "b_null_count": [0],
-            "total_count": [3],
-            "distinct_count": [2],
-        }
-    )
+            "check_type": "distinct_count_b",
+            "check_value": 3
+        },
+    ]) 
 
-    assert dq.distinct_check(result_df) == result_df
-
+    # ASSERT
+    assert_frame_equal(output_result, expected_result)
 
 def test_default_checks():
+    """
+    Test that we can return the null checks and the distinct checks altogether.
+    """
+    # ARRANGE
     dq = DataQuality()
+    input_frame = pl.LazyFrame({
+        "a": [1, 2, 3], 
+        "b": [4, 5, 6]
+    })
 
-    # Just a basic test to ensure it combines the results of the other functions
-    df = pl.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-
-    dq.dataframe = df.lazy()
-
-    result_df = pl.DataFrame(
+    # ACT
+    output_result = dq.default_checks(input_frame)
+    expected_result = pl.DataFrame([
         {
-            "a_null_count": [0],
-            "b_null_count": [0],
-            "total_count": [3],
-            "distinct_count": [3],
+            "check_type": "null_check_a",
+            "check_value": 0
+        },
+        {
+            "check_type": "null_check_b",
+            "check_value": 0
+        },
+        {
+            "check_type": "distinct_count_a",
+            "check_value": 3
+        },
+        {
+            "check_type": "distinct_count_b",
+            "check_value": 3
         }
-    )
+    ]) 
 
-    assert dq.default_checks() == result_df
+    # ASSERT
+    assert_frame_equal(output_result, expected_result)
