@@ -1,5 +1,9 @@
 import polars as pl
+<<<<<<< HEAD
 from pyspark.sql import SparkSession
+=======
+from loguru import logger
+>>>>>>> 7a1bcbd (fix test no nulls test)
 
 
 class DataQuality:
@@ -8,27 +12,34 @@ class DataQuality:
         self.dataframe = None
         self.results = None
 
-    def null_check(self, df: pl.LazyFrame) -> pl.DataFrame:
-        null_dict = {"check_type": None, "check_value": None}
-        schema = {"check_type": pl.Utf8, "check_value": pl.Int64}
-        null_dataframe = pl.DataFrame(null_dict, schema=schema)
-        df = df.collect()
-        for column in df.columns:
-            null_count = df[column].is_null().sum()
+    def null_check(self, input_frame: pl.LazyFrame) -> pl.DataFrame:
+        """
+        Compute the count of nulls in each column in the input Polars LazyFrame.
+        """
+        null_counts = input_frame.select(pl.all().is_null().sum()).collect()
+        column_null_check_results = []
+        for column_name in null_counts.columns:
+            null_count = null_counts[column_name][0]
             if null_count > 0:
-                null_dataframe = null_dataframe.vstack(
-                    pl.DataFrame(
-                        {
-                            "check_type": f"null_check_{column}",
-                            "check_value": null_count,
-                        }
-                    )
-                )
-                print(f"Column {column} has {null_count} null values")
-        null_dataframe = null_dataframe.filter(~pl.col("check_type").is_null())
-        if null_dataframe.shape[1] == 0:
-            print("No null values found")
-        return null_dataframe
+                logger.info(f"Column {column_name} has {null_count} null values")
+            column_null_check_results.append({
+                "check_type": f"null_check_{column_name}", 
+                "check_value": null_count
+            })
+        return (
+            pl.DataFrame(
+                column_null_check_results, 
+                schema={
+                    "check_type": pl.Utf8, 
+                    "check_value": pl.Int64
+                }
+            )
+            # .pivot(
+            #     values="check_value",
+            #     columns="check_type",
+            #     index="check_type"
+            # )
+        )
 
     def distinct_check(self, results: pl.DataFrame):
         df = self.dataframe.collect()
