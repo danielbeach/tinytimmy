@@ -43,5 +43,20 @@ exclude = '''
 )/
 '''
 
+[tool.pytest.ini_options]
+filterwarnings = [
+    # transform all other warnings into errors
+    "error",
+    # ignore UserWarnings
+    "ignore::UserWarning",
+    # note the use of single quote below to denote "raw" strings in TOML
+    'ignore:function ham\(\) is deprecated:DeprecationWarning',
+    "ignore::DeprecationWarning",
+]
+addopts = "--capture=no"
+testpaths = [
+    "tests"
+]
+
 [tool.ruff]
 line-length = 150
