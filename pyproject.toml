@@ -11,6 +11,7 @@ polars = "0.18.13"
 pandas = "2.0.3"
 pyspark =  "3.3.1"
 pyarrow = "12.0.1"
+loguru = "^0.7.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.7.0"
@@ -41,6 +42,21 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    # transform all other warnings into errors
+    "error",
+    # ignore UserWarnings
+    "ignore::UserWarning",
+    # note the use of single quote below to denote "raw" strings in TOML
+    'ignore:function ham\(\) is deprecated:DeprecationWarning',
+    "ignore::DeprecationWarning",
+]
+addopts = "--capture=no"
+testpaths = [
+    "tests"
+]
 
 [tool.ruff]
 line-length = 150
