@@ -1,5 +1,4 @@
 import polars as pl
-from pyspark.sql import SparkSession
 
 
 class DataQuality:
@@ -25,7 +24,6 @@ class DataQuality:
                     )
                 )
                 print(f"Column {column} has {null_count} null values")
-        null_dataframe = null_dataframe.filter(~pl.col("check_type").is_null())
         if null_dataframe.shape[1] == 0:
             print("No null values found")
         return null_dataframe
@@ -47,7 +45,7 @@ class DataQuality:
         else:
             x = inital_count - distinct_count
             print(f"Your dataset has {x} duplicates")
-        return results.filter(~pl.col("check_type").is_null())
+        return results
 
     def check_columns_for_whitespace(self, results: pl.LazyFrame) -> pl.DataFrame:
         df = self.dataframe.collect()
@@ -91,32 +89,49 @@ class DataQuality:
         if not found_whitespace:
             print("No leading or trailing whitespace values found")
         return results
-
-    def default_checks(self, 
-                       return_as: str = 'polars', 
-                       spark_session: SparkSession =  None
-                       ) -> pl.DataFrame:
+    
+    def check_datetime_format(self, 
+                                   results: pl.LazyFrame, 
+                                   datetime_dict: dict) -> pl.DataFrame: 
+        df = self.dataframe.collect()
+        found_malformed_date = False
+        for column in datetime_dict.keys():
+            print('processing date column: ', column)
+            date_format = datetime_dict[column]
+            malformed_count = (
+                df.select(column)
+                .to_series().str.strptime(pl.Datetime, date_format, strict=True)
+                .is_null().sum()
+                )
+            if malformed_count > 0:
+                results = results.vstack(
+                    pl.DataFrame(
+                        {
+                            "check_type": f"{column}_malformed_date_format",
+                            "check_value": malformed_count,
+                        }
+                    )
+                )
+                print(f"Column {column} does not match the date format {date_format}")
+                found_malformed_date = True
+        if not found_malformed_date:
+            print("No malformed date values found")
+        return results
+        
+    def default_checks(self, datetime_dict: dict = None) -> pl.DataFrame:
         print(self.dataframe.schema)
         results = self.null_check(self.dataframe)
         results = self.distinct_check(results)
         results = self.check_columns_for_whitespace(results)
         results = self.check_columns_for_leading_trailing_whitespace(results)
-        results = results.filter(~pl.col("check_type").is_null())
-        self.results = results.filter(~pl.col("check_type").is_null())
-        if return_as == 'polars':
-            return self.results
-        elif return_as == 'pandas':
-            return self.results.to_pandas()
-        elif return_as == 'spark':
-            return  spark_session.createDataFrame(self.results.to_pandas())
-        else:
-            raise ValueError(f"Unknown return type {return_as}")
+        if datetime_dict: 
+            results = self.check_datetime_format(results, datetime_dict)
+        else: 
+            print("No datetime columns provided")
+        self.results = results
+        return results.filter(~pl.col("check_type").is_null())
 
-    def run_custom_check(self, 
-                         sql_filter_statements: list,
-                         return_as: str = 'polars', 
-                         spark_session: SparkSession =  None
-                         ) -> pl.DataFrame:
+    def run_custom_check(self, sql_filter_statements: list) -> pl.DataFrame:
         # must be in the form of a SQL WHERE statement
         results = self.results
         for sql_filter_statement in sql_filter_statements:
@@ -137,11 +152,5 @@ class DataQuality:
                         {"check_type": f"{sql_filter_statement}", "check_value": x}
                     )
                 )
-        if return_as == 'polars':
-            return results
-        elif return_as == 'pandas':
-            return results.to_pandas()
-        elif return_as == 'spark':
-            return  spark_session.createDataFrame(self.results.to_pandas())
-        else:
-            raise ValueError(f"Unknown return type {return_as}")
+        return results
+         
