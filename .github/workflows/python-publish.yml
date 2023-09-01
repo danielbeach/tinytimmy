@@ -41,7 +41,7 @@ jobs:
           poetry run pytest
       - name: Lint with ruff
         run: |
-          poetry run ruff
+          poetry run ruff check tinytimmy
 
   deploy:
     runs-on: ubuntu-latest
