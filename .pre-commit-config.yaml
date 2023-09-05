@@ -14,9 +14,10 @@ repos:
   hooks:
     - id: ruff
       name: ruff
-      entry: ruff
+      entry: ruff check
       language: system
       types: [python]
+      args: [--fix]
     - id: black
       name: black
       entry: black

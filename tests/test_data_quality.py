@@ -1,8 +1,7 @@
 import polars as pl
 from polars.testing import assert_frame_equal
-import pytest
 from tinytimmy.data_quality import DataQuality
-from loguru import logger
+
 
 def test_no_nulls():
     """
@@ -11,23 +10,16 @@ def test_no_nulls():
     """
     # ARRANGE
     dq = DataQuality()
-    input_df = pl.LazyFrame({
-        "a": [1, 2, 3], 
-        "b": [4, 5, 6]
-    })
+    input_df = pl.LazyFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
     # ACT
     output_result = dq.null_check(input_df)
-    expected_result = pl.DataFrame([
-        {
-            "check_type": "null_check_a",
-            "check_value": 0
-        },
-        {
-            "check_type": "null_check_b",
-            "check_value": 0
-        },
-    ])
+    expected_result = pl.DataFrame(
+        [
+            {"check_type": "null_check_a", "check_value": 0},
+            {"check_type": "null_check_b", "check_value": 0},
+        ]
+    )
 
     # ASSERT
     assert_frame_equal(output_result, expected_result)
@@ -40,23 +32,16 @@ def test_some_nulls():
     """
     # ARRANGE
     dq = DataQuality()
-    input_df = pl.LazyFrame({
-        "a": [1, None, 3], 
-        "b": [None, 5, 6]
-    })
+    input_df = pl.LazyFrame({"a": [1, None, 3], "b": [None, 5, 6]})
 
     # ACT
     output_result = dq.null_check(input_df)
-    expected_result = pl.DataFrame([
-        {
-            "check_type": "null_check_a",
-            "check_value": 1
-        },
-        {
-            "check_type": "null_check_b",
-            "check_value": 1
-        },
-    ])
+    expected_result = pl.DataFrame(
+        [
+            {"check_type": "null_check_a", "check_value": 1},
+            {"check_type": "null_check_b", "check_value": 1},
+        ]
+    )
 
     # ASSERT
     assert_frame_equal(output_result, expected_result)
@@ -69,26 +54,20 @@ def test_distinct_check():
     """
     # ARRANGE
     dq = DataQuality()
-    input_frame = pl.LazyFrame({
-        "a": [1, 2, 3], 
-        "b": [4, 5, 6]
-    })
+    input_frame = pl.LazyFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
     # ACT
     output_result = dq.distinct_check(input_frame)
-    expected_result = pl.DataFrame([
-        {
-            "check_type": "distinct_count_a",
-            "check_value": 3
-        },
-        {
-            "check_type": "distinct_count_b",
-            "check_value": 3
-        },
-    ]) 
+    expected_result = pl.DataFrame(
+        [
+            {"check_type": "distinct_count_a", "check_value": 3},
+            {"check_type": "distinct_count_b", "check_value": 3},
+        ]
+    )
 
     # ASSERT
     assert_frame_equal(output_result, expected_result)
+
 
 def test_default_checks():
     """
@@ -96,31 +75,18 @@ def test_default_checks():
     """
     # ARRANGE
     dq = DataQuality()
-    input_frame = pl.LazyFrame({
-        "a": [1, 2, 3], 
-        "b": [4, 5, 6]
-    })
+    input_frame = pl.LazyFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
     # ACT
     output_result = dq.default_checks(input_frame)
-    expected_result = pl.DataFrame([
-        {
-            "check_type": "null_check_a",
-            "check_value": 0
-        },
-        {
-            "check_type": "null_check_b",
-            "check_value": 0
-        },
-        {
-            "check_type": "distinct_count_a",
-            "check_value": 3
-        },
-        {
-            "check_type": "distinct_count_b",
-            "check_value": 3
-        }
-    ]) 
+    expected_result = pl.DataFrame(
+        [
+            {"check_type": "null_check_a", "check_value": 0},
+            {"check_type": "null_check_b", "check_value": 0},
+            {"check_type": "distinct_count_a", "check_value": 3},
+            {"check_type": "distinct_count_b", "check_value": 3},
+        ]
+    )
 
     # ASSERT
     assert_frame_equal(output_result, expected_result)
