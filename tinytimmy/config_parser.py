@@ -24,10 +24,12 @@ class ConfigParser:
 
     @staticmethod
     def get_available_tests() -> list:
-        class_metadata = inspect.getmembers(
-            DataQuality, predicate=inspect.isfunction
-        )
-        available_methods = [metadata[0] for metadata in class_metadata if not metadata[0].startswith("_")]
+        class_metadata = inspect.getmembers(DataQuality, predicate=inspect.isfunction)
+        available_methods = [
+            metadata[0]
+            for metadata in class_metadata
+            if not metadata[0].startswith("_")
+        ]
         return available_methods
 
     def prepare_testconf(self, parsed_conf: dict, available_tests: list) -> list:

@@ -62,13 +62,9 @@ class TinyTimSuite:
         self.run(self.conf.test_objects)
 
     def run(self, conf) -> None:
-        tiny_tim = TinyTim(
-            source_type=self.source_type, dataframe=self.dataframe
-        )
+        tiny_tim = TinyTim(source_type=self.source_type, dataframe=self.dataframe)
         for test in conf:
-            self.results.append(
-                getattr(tiny_tim, test.name)(tiny_tim.dataframe)
-            )
+            self.results.append(getattr(tiny_tim, test.name)(tiny_tim.dataframe))
         return self.results
 
     @property

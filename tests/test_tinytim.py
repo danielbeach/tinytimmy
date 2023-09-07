@@ -59,7 +59,7 @@ def test_tinytimmy_suite_methods_triggered():
     tiny_tim = TinyTimSuite(
         conf_path="./tests/test_yamls/positive_test.yaml",
         source_type="pandas",
-        dataframe=df
+        dataframe=df,
     )
     assert len(tiny_tim.results) == 1
 
@@ -69,6 +69,6 @@ def test_tinytimmy_suite_object_type():
     tiny_tim = TinyTimSuite(
         conf_path="./tests/test_yamls/positive_test.yaml",
         source_type="pandas",
-        dataframe=df
+        dataframe=df,
     )
     assert isinstance(tiny_tim.results[0], pl.DataFrame)
