@@ -1,7 +1,7 @@
 import pytest
 import polars as pl
 from pyspark.sql import SparkSession
-from tinytimmy.tinytim import TinyTim
+from tinytimmy.tinytim import TinyTim, TinyTimSuite
 import pandas as pd
 
 
@@ -52,3 +52,23 @@ def test_convert_from_polars(sample_polars_df):
 def test_convert_from_csv():
     tiny_tim = TinyTim(source_type="csv", file_path="tests/example.csv")
     assert isinstance(tiny_tim.dataframe, pl.LazyFrame)
+
+
+def test_tinytimmy_suite_methods_triggered():
+    df = pd.DataFrame({"A": [1, None, 3], "B": [4, 5, 6]})
+    tiny_tim = TinyTimSuite(
+        conf_path="./tests/test_yamls/positive_test.yaml",
+        source_type="pandas",
+        dataframe=df
+    )
+    assert len(tiny_tim.results) == 1
+
+
+def test_tinytimmy_suite_object_type():
+    df = pd.DataFrame({"A": [1, None, 3], "B": [4, 5, 6]})
+    tiny_tim = TinyTimSuite(
+        conf_path="./tests/test_yamls/positive_test.yaml",
+        source_type="pandas",
+        dataframe=df
+    )
+    assert isinstance(tiny_tim.results[0], pl.DataFrame)

@@ -1,6 +1,7 @@
 import polars as pl
 from pyspark.sql import SparkSession
 
+from tinytimmy.config_parser import ConfigParser
 from tinytimmy.data_quality import DataQuality
 
 
@@ -41,3 +42,39 @@ class TinyTim(DataQuality):
         elif self.source_type == "parquet":
             return pl.scan_parquet(self.file_path)
         # TODO: add support for s3, gcs, etc.
+
+
+class TinyTimSuite:
+    def __init__(
+        self,
+        source_type: str,
+        conf_path: str,
+        dataframe=None,
+        file_path: str = None,
+        spark_session: SparkSession = None,
+    ):
+        self.source_type = source_type
+        self.dataframe = dataframe
+        self.file_path = file_path
+        self.spark_session = spark_session
+        self.conf = ConfigParser(conf_path)
+        self.results = []
+        self.run(self.conf.test_objects)
+
+    def run(self, conf) -> None:
+        tiny_tim = TinyTim(
+            source_type=self.source_type, dataframe=self.dataframe
+        )
+        for test in conf:
+            self.results.append(
+                getattr(tiny_tim, test.name)(tiny_tim.dataframe)
+            )
+        return self.results
+
+    @property
+    def results(self):
+        return self._results
+
+    @results.setter
+    def results(self, value):
+        self._results = value
